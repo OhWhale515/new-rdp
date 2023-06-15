@@ -17,10 +17,6 @@ function authenticateUser(req, res, next) {
   }
 }
 
-app.get('/', authenticateUser, (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
 app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/public/login.html');
 });
@@ -36,10 +32,15 @@ app.post('/login', (req, res) => {
   }
 });
 
+app.get('/', authenticateUser, (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 io.on('connection', (socket) => {
   // Socket connection logic goes here
 });
 
-server.listen(5000, () => {
-  console.log('Server running on port 5000');
+const port = 8000;
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
