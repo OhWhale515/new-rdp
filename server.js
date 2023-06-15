@@ -3,6 +3,7 @@ const session = require('express-session');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const { ExpressPeerServer } = require('peer');
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
@@ -17,6 +18,16 @@ function authenticateUser(req, res, next) {
   }
 }
 
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+});
+
+app.use('/peerjs', peerServer);
+
+app.get('/', authenticateUser, (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 app.get('/login', (req, res) => {
   res.sendFile(__dirname + '/public/login.html');
 });
@@ -30,10 +41,6 @@ app.post('/login', (req, res) => {
   } else {
     res.redirect('/login');
   }
-});
-
-app.get('/', authenticateUser, (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
 });
 
 io.on('connection', (socket) => {
