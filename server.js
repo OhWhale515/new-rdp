@@ -3,7 +3,7 @@ const session = require('express-session');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const { ExpressPeerServer } = require('peer');
+const path = require('path');
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
@@ -18,24 +18,19 @@ function authenticateUser(req, res, next) {
   }
 }
 
-const peerServer = ExpressPeerServer(server, {
-  debug: true,
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/login.html'));
 });
-
-app.use('/peerjs', peerServer);
 
 app.get('/', authenticateUser, (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(__dirname + '/public/login.html');
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  if (username === 'Admin' && password === 'Password') {
+  // Perform login validation (replace this with your own logic)
+  if (username === 'yo' && password === 'ho') {
     req.session.isAuthenticated = true;
     res.redirect('/');
   } else {
@@ -47,7 +42,6 @@ io.on('connection', (socket) => {
   // Socket connection logic goes here
 });
 
-const port = 8000;
-server.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+server.listen(8000, () => {
+  console.log('Server running on port 8000');
 });

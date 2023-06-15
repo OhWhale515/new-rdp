@@ -29,6 +29,9 @@ const constraints = { video: true, audio: true };
 // Variable to store user media stream
 let localStream;
 
+// Variable to store the chosen mode (video or screen sharing)
+let mode;
+
 // Get user media stream and display it on the page
 navigator.mediaDevices.getUserMedia(constraints)
   .then((stream) => {
@@ -49,32 +52,53 @@ document.getElementById('login-form').addEventListener('submit', (event) => {
   const password = document.getElementById('password').value;
 
   // Perform login validation (replace this with your own logic)
-  if (username === 'Admin' && password === 'Password') {
-    // Emit 'join' event when the user is ready to join the video chat
-    socket.emit('join');
-    showVideoChat();
+  if (username === 'yo' && password === 'ho') {
+    // Show mode selection page
+    showModeSelection();
   } else {
     alert('Invalid credentials');
   }
 });
 
+// Event listener for 'video-chat' button click
+document.getElementById('video-chat').addEventListener('click', () => {
+  mode = 'video-chat';
+  showVideoChat();
+
+  // Emit 'join' event when the user is ready to join the video chat
+  socket.emit('join');
+});
+
+// Event listener for 'screen-share' button click
+document.getElementById('screen-share').addEventListener('click', () => {
+  mode = 'screen-share';
+  showScreenSharing();
+
+  // Emit 'join' event when the user is ready to join the screen sharing session
+  socket.emit('join');
+});
+
 // Event listener for receiving 'user-connected' event
 socket.on('user-connected', (userId) => {
-  // Create a new video element for the remote user
-  const remoteVideo = document.createElement('video');
-  remoteVideo.setAttribute('data-user-id', userId);
-  addVideoStream(remoteVideo, null);
+  if (mode === 'video-chat') {
+    // Create a new video element for the remote user
+    const remoteVideo = document.createElement('video');
+    remoteVideo.setAttribute('data-user-id', userId);
+    addVideoStream(remoteVideo, null);
 
-  // Call function to establish WebRTC connection and add the remote user's stream
-  connectToNewUser(userId, localStream);
+    // Call function to establish WebRTC connection and add the remote user's stream
+    connectToNewUser(userId, localStream);
+  }
 });
 
 // Event listener for receiving 'user-disconnected' event
 socket.on('user-disconnected', (userId) => {
-  // Get the video element associated with the disconnected user and remove it
-  const remoteVideo = document.querySelector(`video[data-user-id="${userId}"]`);
-  if (remoteVideo) {
-    removeVideoStream(remoteVideo);
+  if (mode === 'video-chat') {
+    // Get the video element associated with the disconnected user and remove it
+    const remoteVideo = document.querySelector(`video[data-user-id="${userId}"]`);
+    if (remoteVideo) {
+      removeVideoStream(remoteVideo);
+    }
   }
 });
 
@@ -156,3 +180,9 @@ document.getElementById('end-call').addEventListener('click', () => {
   socket.emit('user-disconnected');
   socket.disconnect();
 });
+
+// Function to show the mode selection page
+function showModeSelection() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('mode-selection-page').style.display = 'block';
+}
