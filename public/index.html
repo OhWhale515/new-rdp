@@ -1,23 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Chat</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>Welcome to Simple Share Video Chat</h1>
-  <h4>By CodeAli.LLC</h4>
   <div id="video-container">
-    <!-- Video elements will be dynamically added here -->
+    <video muted></video>
   </div>
-  <div id="controls">
+
+  <div id="controls-container">
     <button id="share-screen">Share Screen</button>
     <button id="toggle-audio">Toggle Audio</button>
     <button id="toggle-video">Toggle Video</button>
     <button id="end-call">End Call</button>
   </div>
+
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.1/dist/peerjs.min.js"></script>
+  <script src="script.js"></script>
 </body>
+
 </html>

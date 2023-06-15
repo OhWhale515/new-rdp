@@ -17,6 +17,12 @@ function removeVideoStream(video) {
   video.parentNode.removeChild(video);
 }
 
+// Function to show the video chat page
+function showVideoChat() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('video-chat-page').style.display = 'block';
+}
+
 // Get user media constraints
 const constraints = { video: true, audio: true };
 
@@ -30,13 +36,27 @@ navigator.mediaDevices.getUserMedia(constraints)
     const localVideo = document.createElement('video');
     localVideo.muted = true;
     addVideoStream(localVideo, stream);
-
-    // Emit 'join' event when the user is ready to join the video chat
-    socket.emit('join');
   })
   .catch((error) => {
     console.error('Error accessing user media:', error);
   });
+
+// Login form submission
+document.getElementById('login-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  // Perform login validation (replace this with your own logic)
+  if (username === 'Admin' && password === 'Password') {
+    // Emit 'join' event when the user is ready to join the video chat
+    socket.emit('join');
+    showVideoChat();
+  } else {
+    alert('Invalid credentials');
+  }
+});
 
 // Event listener for receiving 'user-connected' event
 socket.on('user-connected', (userId) => {
@@ -86,25 +106,19 @@ function connectToNewUser(userId, stream) {
   });
 }
 
-// Button event listeners
-
-// Share Screen button
+// Event listener for 'share-screen' button click
 document.getElementById('share-screen').addEventListener('click', () => {
-  navigator.mediaDevices
-    .getDisplayMedia({ video: true, audio: true })
+  navigator.mediaDevices.getDisplayMedia({ video: true })
     .then((stream) => {
-      // Stop the current local stream
-      localStream.getTracks().forEach((track) => {
-        track.stop();
-      });
-
-      // Replace the local stream with the screen sharing stream
-      localStream = stream;
+      const videoTrack = stream.getVideoTracks()[0];
+      const sender = currentPeer.getSenders().find((s) => s.track.kind === videoTrack.kind);
+      sender.replaceTrack(videoTrack);
+      localStream.getTracks().forEach((track) => track.stop());
+      localStream.removeTrack(localStream.getVideoTracks()[0]);
+      localStream.addTrack(videoTrack);
       const localVideo = document.querySelector('video[muted]');
-      addVideoStream(localVideo, stream);
-
-      // Update the other participants with the new stream
-      socket.emit('screen-share', localStream);
+      addVideoStream(localVideo, localStream);
+      document.getElementById('share-screen').disabled = true;
     })
     .catch((error) => {
       console.error('Error accessing screen sharing:', error);
