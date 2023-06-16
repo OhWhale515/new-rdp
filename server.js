@@ -1,64 +1,50 @@
 const express = require('express');
-const session = require('express-session');
+const http = require('http');
+const socketIO = require('socket.io');
+
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io')(server);
-const path = require('path');
+const server = http.createServer(app);
+const io = socketIO(server);
 
-app.use(express.static('public'));
-app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'your-secret-key', resave: false, saveUninitialized: true }));
+// Set up routes and middleware for your server here
+app.use(express.static('public')); // Serve static files from the "public" directory
 
-// Define a middleware to check if the user is authenticated
-function authenticateUser(req, res, next) {
-  if (req.session.isAuthenticated) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
-}
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/login.html'));
-});
-
-app.get('/', authenticateUser, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
-});
-
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-
-  // Perform login validation (replace this with your own logic)
-  if (username === 'yo' && password === 'ho') {
-    req.session.isAuthenticated = true;
-    return res.redirect('/');
-  } else {
-    return res.redirect('/login');
-  }
-});
-
-
+// Socket.IO logic goes here
 io.on('connection', (socket) => {
-  // Event listener for 'join' event
+  console.log('A user connected');
+
   socket.on('join', () => {
-    // Emit 'user-connected' event to notify other clients
-    socket.broadcast.emit('user-connected', socket.id);
+    console.log('User joined');
+    // Add your logic for handling user join event
   });
 
-  // Event listener for 'call-user' event
-  socket.on('call-user', (data) => {
-    // Emit 'call-made' event to the specified user
-    io.to(data.userId).emit('call-made', { signalData: data.signalData, userId: socket.id });
+  socket.on('join-screen-sharing', () => {
+    console.log('User joined screen sharing');
+    // Add your logic for handling user join screen sharing event
   });
 
-  // Event listener for 'disconnect' event
+  socket.on('toggle-video', () => {
+    console.log('Toggle Video button clicked');
+    // Add your logic for handling toggle video event
+  });
+
+  socket.on('share-screen', () => {
+    console.log('Share Screen button clicked');
+    // Add your logic for handling share screen event
+  });
+
+  socket.on('leave', () => {
+    console.log('User left');
+    // Add your logic for handling user leave event
+  });
+
   socket.on('disconnect', () => {
-    // Emit 'user-disconnected' event to notify other clients
-    socket.broadcast.emit('user-disconnected', socket.id);
+    console.log('A user disconnected');
+    // Add your logic for handling user disconnect event
   });
 });
 
+// Server listening
 server.listen(8000, () => {
-  console.log('Server running on port 8000');
+  console.log('Server is running on port 8000');
 });
