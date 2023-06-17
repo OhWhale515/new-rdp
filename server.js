@@ -1,50 +1,47 @@
 const express = require('express');
-const http = require('http');
-const socketIO = require('socket.io');
-
 const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
-// Set up routes and middleware for your server here
-app.use(express.static('public')); // Serve static files from the "public" directory
+// Serve the static files
+app.use(express.static(__dirname + '/public'));
 
-// Socket.IO logic goes here
+// Handle socket connection
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  socket.on('join', () => {
-    console.log('User joined');
-    // Add your logic for handling user join event
+  // Handle 'toggle-audio' event
+  socket.on('toggle-audio', () => {
+    console.log('Toggle Audio event received');
+    // Perform the desired action on the server
   });
 
-  socket.on('join-screen-sharing', () => {
-    console.log('User joined screen sharing');
-    // Add your logic for handling user join screen sharing event
-  });
-
+  // Handle 'toggle-video' event
   socket.on('toggle-video', () => {
-    console.log('Toggle Video button clicked');
-    // Add your logic for handling toggle video event
+    console.log('Toggle Video event received');
+    // Perform the desired action on the server
   });
 
+  // Handle 'end-call' event
+  socket.on('end-call', () => {
+    console.log('End Call event received');
+    // Perform the desired action on the server
+  });
+
+  // Handle 'share-screen' event
   socket.on('share-screen', () => {
-    console.log('Share Screen button clicked');
-    // Add your logic for handling share screen event
+    console.log('Share Screen event received');
+    // Perform the desired action on the server
   });
 
-  socket.on('leave', () => {
-    console.log('User left');
-    // Add your logic for handling user leave event
-  });
-
+  // Handle disconnection
   socket.on('disconnect', () => {
     console.log('A user disconnected');
-    // Add your logic for handling user disconnect event
   });
 });
 
-// Server listening
-server.listen(8000, () => {
-  console.log('Server is running on port 8000');
+// Start the server
+const PORT = 8000;
+http.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
 });
