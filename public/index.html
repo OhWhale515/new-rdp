@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <title>Video Chat</title>
   <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
-
 <body>
   <div id="video-chat-page">
     <h1>Members Section</h1>
@@ -21,7 +19,37 @@
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="script.js"></script>
-</body>
+  <script>
+    // Connect to the server
+    const socket = io();
 
+    // Event listener for 'toggle-audio' button click
+    document.getElementById('toggle-audio').addEventListener('click', () => {
+      console.log('Toggle Audio button clicked');
+      // Emit 'toggle-audio' event to the server
+      socket.emit('toggle-audio');
+    });
+
+    // Event listener for 'toggle-video' button click
+    document.getElementById('toggle-video').addEventListener('click', () => {
+      console.log('Toggle Video button clicked');
+      // Emit 'toggle-video' event to the server
+      socket.emit('toggle-video');
+    });
+
+    // Event listener for 'end-call' button click
+    document.getElementById('end-call').addEventListener('click', () => {
+      console.log('End Call button clicked');
+      // Emit 'end-call' event to the server
+      socket.emit('end-call');
+    });
+
+    // Event listener for 'share-screen' button click
+    document.getElementById('share-screen').addEventListener('click', () => {
+      console.log('Share Screen button clicked');
+      // Emit 'share-screen' event to the server
+      socket.emit('share-screen');
+    });
+  </script>
+</body>
 </html>
