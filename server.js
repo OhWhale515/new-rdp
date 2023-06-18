@@ -1,47 +1,32 @@
 const express = require('express');
+const http = require('http');
+const socketio = require('socket.io');
+const path = require('path');
+
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const server = http.createServer(app);
+const io = socketio(server);
 
 // Serve the static files
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Handle socket connection
+// Handle connection event
 io.on('connection', (socket) => {
-  console.log('A user connected');
+    console.log('Client connected:', socket.id);
 
-  // Handle 'toggle-audio' event
-  socket.on('toggle-audio', () => {
-    console.log('Toggle Audio event received');
-    // Perform the desired action on the server
-  });
+    // Forward screen sharing data to other clients
+    socket.on('screen_share', (data) => {
+        socket.broadcast.emit('screen_share', data);
+    });
 
-  // Handle 'toggle-video' event
-  socket.on('toggle-video', () => {
-    console.log('Toggle Video event received');
-    // Perform the desired action on the server
-  });
-
-  // Handle 'end-call' event
-  socket.on('end-call', () => {
-    console.log('End Call event received');
-    // Perform the desired action on the server
-  });
-
-  // Handle 'share-screen' event
-  socket.on('share-screen', () => {
-    console.log('Share Screen event received');
-    // Perform the desired action on the server
-  });
-
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
-  });
+    // Forward viewing data to other clients
+    socket.on('viewing', (data) => {
+        socket.broadcast.emit('viewing', data);
+    });
 });
 
-// Start the server
-const PORT = 8000;
-http.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+// Run the server
+const port = 5000;
+server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
